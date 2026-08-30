@@ -4,13 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.codex"
-    compileSdk {
-        version = release(36)
-    }
+    namespace = "com.example.phase1"
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.codex"
+        applicationId = "com.example.phase1"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

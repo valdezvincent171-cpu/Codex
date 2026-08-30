@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">CODEX</string>
-</resources>
+    <string name="app_name">Phase1</string>
+<string name="word_count">%1$d of 10 words</string>
+<string name="instructions">Unscramble the word using all the letters.</string>
+<string name="enter_your_word">Enter your word</string>
+<string name="score">Score: %d</string>
+<string name="submit">Submit</string>
+<string name="skip">Skip</string>
+    </resources>

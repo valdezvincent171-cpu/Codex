@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "CODEX"
+rootProject.name = "Phase1"
 include(":app")
  
