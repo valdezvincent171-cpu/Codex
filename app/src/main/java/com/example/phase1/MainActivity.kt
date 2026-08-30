@@ -57,16 +57,28 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun GameLayout(modifier: Modifier = Modifier) {
+    // Phase 4: real word list instead of a single hardcoded test word
+    val wordList = listOf(
+        "architecture",
+        "component",
+        "viewmodel",
+        "compose"
+    )
+
+    fun getNextWord(): String {
+        return wordList.random()
+    }
+
     var userGuess by remember { mutableStateOf("") }
-    // TEMP test word for Phase 3 — Phase 4 will replace this with a real word list
-    var currentWord by remember { mutableStateOf("kotlin") }
+    var currentWord by remember { mutableStateOf(getNextWord()) }
     var score by remember { mutableStateOf(0) }
 
     fun checkGuess() {
         if (userGuess.equals(currentWord, ignoreCase = true)) {
             score += 10
+            currentWord = getNextWord()
         } else {
-            // Incorrect guess handling comes later — kept simple for Phase 3
+            // Incorrect guess handling comes later — kept simple for now
         }
         userGuess = ""
     }
@@ -91,8 +103,11 @@ fun GameLayout(modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onPrimary
             )
+            // TEMP for Phase 4 testing: showing the real word so you can
+            // confirm it changes after each correct guess.
+            // Phase 5 will replace this with the scrambled version.
             Text(
-                text = "Scrambleun",
+                text = currentWord,
                 style = MaterialTheme.typography.displayMedium
             )
             Text(
@@ -121,9 +136,6 @@ fun GameLayout(modifier: Modifier = Modifier) {
                 )
             )
 
-            // Submit lives here (not in GameScreen) so it can see userGuess,
-            // currentWord, and checkGuess(). We'll move this back out once
-            // we introduce shared state in a later phase.
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { checkGuess() }
