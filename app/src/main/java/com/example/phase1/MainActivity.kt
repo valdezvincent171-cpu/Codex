@@ -57,7 +57,6 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun GameLayout(modifier: Modifier = Modifier) {
-    // Phase 4: real word list instead of a single hardcoded test word
     val wordList = listOf(
         "architecture",
         "component",
@@ -69,14 +68,24 @@ fun GameLayout(modifier: Modifier = Modifier) {
         return wordList.random()
     }
 
+    // Phase 5: scrambles a word's letters for display
+    fun scrambleWord(word: String): String {
+        return word.toCharArray().let {
+            it.shuffle()
+            String(it)
+        }
+    }
+
     var userGuess by remember { mutableStateOf("") }
     var currentWord by remember { mutableStateOf(getNextWord()) }
+    var scrambledWord by remember { mutableStateOf(scrambleWord(currentWord)) }
     var score by remember { mutableStateOf(0) }
 
     fun checkGuess() {
         if (userGuess.equals(currentWord, ignoreCase = true)) {
             score += 10
             currentWord = getNextWord()
+            scrambledWord = scrambleWord(currentWord)
         } else {
             // Incorrect guess handling comes later — kept simple for now
         }
@@ -103,11 +112,9 @@ fun GameLayout(modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onPrimary
             )
-            // TEMP for Phase 4 testing: showing the real word so you can
-            // confirm it changes after each correct guess.
-            // Phase 5 will replace this with the scrambled version.
+            // Phase 5: showing the scrambled word instead of the real answer
             Text(
-                text = currentWord,
+                text = scrambledWord,
                 style = MaterialTheme.typography.displayMedium
             )
             Text(
