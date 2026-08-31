@@ -25,10 +25,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,6 +32,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.phase1.ui.theme.Phase1Theme
 
 class MainActivity : ComponentActivity() {
@@ -57,40 +54,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun GameLayout(modifier: Modifier = Modifier) {
-    val wordList = listOf(
-        "architecture",
-        "component",
-        "viewmodel",
-        "compose"
-    )
-
-    fun getNextWord(): String {
-        return wordList.random()
-    }
-
-    // Phase 5: scrambles a word's letters for display
-    fun scrambleWord(word: String): String {
-        return word.toCharArray().let {
-            it.shuffle()
-            String(it)
-        }
-    }
-
-    var userGuess by remember { mutableStateOf("") }
-    var currentWord by remember { mutableStateOf(getNextWord()) }
-    var scrambledWord by remember { mutableStateOf(scrambleWord(currentWord)) }
-    var score by remember { mutableStateOf(0) }
-
-    fun checkGuess() {
-        if (userGuess.equals(currentWord, ignoreCase = true)) {
-            score += 10
-            currentWord = getNextWord()
-            scrambledWord = scrambleWord(currentWord)
-        } else {
-            // Incorrect guess handling comes later — kept simple for now
-        }
-        userGuess = ""
-    }
+    // Phase 6: get the ViewModel instead of holding state locally
+    val viewModel: GameViewModel = viewModel()
 
     val mediumPadding = 16.dp
     Card(
@@ -112,9 +77,8 @@ fun GameLayout(modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onPrimary
             )
-            // Phase 5: showing the scrambled word instead of the real answer
             Text(
-                text = scrambledWord,
+                text = viewModel.scrambledWord,
                 style = MaterialTheme.typography.displayMedium
             )
             Text(
@@ -123,7 +87,7 @@ fun GameLayout(modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.titleMedium
             )
             OutlinedTextField(
-                value = userGuess,
+                value = viewModel.userGuess,
                 singleLine = true,
                 shape = MaterialTheme.shapes.large,
                 modifier = Modifier.fillMaxWidth(),
@@ -132,20 +96,20 @@ fun GameLayout(modifier: Modifier = Modifier) {
                     unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                     disabledContainerColor = MaterialTheme.colorScheme.surface,
                 ),
-                onValueChange = { userGuess = it },
+                onValueChange = { viewModel.userGuess = it },
                 label = { Text("Enter your word") },
                 isError = false,
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Done
                 ),
                 keyboardActions = KeyboardActions(
-                    onDone = { checkGuess() }
+                    onDone = { viewModel.checkGuess() }
                 )
             )
 
             Button(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = { checkGuess() }
+                onClick = { viewModel.checkGuess() }
             ) {
                 Text(
                     text = "Submit",
@@ -154,7 +118,7 @@ fun GameLayout(modifier: Modifier = Modifier) {
             }
 
             Text(
-                text = "Score: $score",
+                text = "Score: ${viewModel.score}",
                 style = MaterialTheme.typography.headlineMedium
             )
         }
