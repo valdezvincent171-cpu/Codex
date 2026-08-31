@@ -25,6 +25,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,8 +56,9 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun GameLayout(modifier: Modifier = Modifier) {
-    // Phase 6: get the ViewModel instead of holding state locally
     val viewModel: GameViewModel = viewModel()
+    // Phase 7: observe the StateFlow so Compose knows to redraw on change
+    val uiState by viewModel.uiState.collectAsState()
 
     val mediumPadding = 16.dp
     Card(
@@ -78,7 +81,7 @@ fun GameLayout(modifier: Modifier = Modifier) {
                 color = MaterialTheme.colorScheme.onPrimary
             )
             Text(
-                text = viewModel.scrambledWord,
+                text = uiState.scrambledWord,
                 style = MaterialTheme.typography.displayMedium
             )
             Text(
@@ -87,7 +90,7 @@ fun GameLayout(modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.titleMedium
             )
             OutlinedTextField(
-                value = viewModel.userGuess,
+                value = uiState.userGuess,
                 singleLine = true,
                 shape = MaterialTheme.shapes.large,
                 modifier = Modifier.fillMaxWidth(),
@@ -96,7 +99,7 @@ fun GameLayout(modifier: Modifier = Modifier) {
                     unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                     disabledContainerColor = MaterialTheme.colorScheme.surface,
                 ),
-                onValueChange = { viewModel.userGuess = it },
+                onValueChange = { viewModel.updateUserGuess(it) },
                 label = { Text("Enter your word") },
                 isError = false,
                 keyboardOptions = KeyboardOptions.Default.copy(
@@ -118,7 +121,7 @@ fun GameLayout(modifier: Modifier = Modifier) {
             }
 
             Text(
-                text = "Score: ${viewModel.score}",
+                text = "Score: ${uiState.score}",
                 style = MaterialTheme.typography.headlineMedium
             )
         }

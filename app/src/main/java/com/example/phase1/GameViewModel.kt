@@ -1,9 +1,13 @@
 package com.example.phase1
 
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
-// Phase 6: the ViewModel now owns the game's data and logic.
-// GameLayout (the UI) will just READ from this and call its functions.
+// Phase 7: the ViewModel now exposes its state as a StateFlow,
+// so Compose can properly observe changes and redraw the UI.
 class GameViewModel : ViewModel() {
 
     val wordList = listOf(
@@ -13,30 +17,45 @@ class GameViewModel : ViewModel() {
         "compose"
     )
 
-    var currentWord = wordList.random()
-    var scrambledWord = scrambleWord(currentWord)
-    var score = 0
-    var userGuess = ""
+    // currentWord is the real answer — kept private-ish (not part of UI state)
+    // since the player should only ever see the scrambled version.
+    private var currentWord = wordList.random()
 
-    fun getNextWord(): String {
+    private fun getNextWord(): String {
         return wordList.random()
     }
 
-    fun scrambleWord(word: String): String {
+    private fun scrambleWord(word: String): String {
         return word.toCharArray().let {
             it.shuffle()
             String(it)
         }
     }
 
+    private val _uiState = MutableStateFlow(
+        GameUiState(scrambledWord = scrambleWord(currentWord))
+    )
+    val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
+
+    fun updateUserGuess(guessedWord: String) {
+        _uiState.update { currentState ->
+            currentState.copy(userGuess = guessedWord)
+        }
+    }
+
     fun checkGuess() {
-        if (userGuess.equals(currentWord, ignoreCase = true)) {
-            score += 10
+        if (_uiState.value.userGuess.equals(currentWord, ignoreCase = true)) {
             currentWord = getNextWord()
-            scrambledWord = scrambleWord(currentWord)
+            _uiState.update { currentState ->
+                currentState.copy(
+                    score = currentState.score + 10,
+                    scrambledWord = scrambleWord(currentWord),
+                    userGuess = ""
+                )
+            }
         } else {
             // Incorrect guess handling comes later — kept simple for now
+            _uiState.update { it.copy(userGuess = "") }
         }
-        userGuess = ""
     }
 }
